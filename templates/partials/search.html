@@ -1,0 +1,9 @@
+{{ define "partials/search.html" }}
+<script>
+    featureGroup.clearLayers();
+    {{ with .Cities }}
+    {{ template "partials/cities.html" . }}
+    map.flyToBounds(featureGroup.getBounds(),{maxZoom:10,duration:0.25});
+    {{ end }}
+</script>
+{{ end }}

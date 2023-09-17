@@ -1,0 +1,19 @@
+{{ define "partials/query.html" }}
+<script>
+    featureGroup.clearLayers();
+    {{ $radius_in_meters := .Radius }}
+    {{ with .Input }}
+    addmarker({
+        id: {{ .ID }},
+        latitude: {{ .Lat }},
+        longitude: {{ .Lon }},
+        population: {{ .Population }}
+    });
+    addcircle({{ .Lat }}, {{ .Lon }}, {{ $radius_in_meters }})
+    {{ end }}
+    {{ with .Cities }}
+    {{ template "partials/cities.html" . }}
+    {{ end }}
+    map.flyToBounds(featureGroup.getBounds(),{maxZoom:10,duration:0.25});
+</script>
+{{ end }}

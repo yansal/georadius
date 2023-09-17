@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="https://unpkg.com/htmx.org@1.9.5"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <style>
+        #map {
+            height: 480px;
+        }
+    </style>
+
+    <script>
+        function addmarker(city, options = { opacity: 1 }) {
+            L.marker([city.latitude, city.longitude], options).
+                addTo(featureGroup).
+                bindPopup("<b>" + city.id + "</b><br>Population: " + city.population).
+                on('click', function (ev) {
+                    markerclicked(ev);
+                }).
+                on('mouseover', function (ev) {
+                    ev.target.openPopup();
+                }).city = city;
+        }
+        function addcircle(lat, lng, radius) {
+            L.circle([lat, lng], { radius: radius }).addTo(featureGroup);
+        }
+        function markerclicked(ev) {
+            document.getElementById("input").value = ev.target.city.id;
+            submitform();
+        };
+        function submitform() {
+            document.getElementById("form").requestSubmit();
+        }
+    </script>
+</head>
+
+<body>
+    <form id="form" hx-get="/" hx-target="#script" hx-vals='{"action":"query"}' hx-push-url="true">
+        <input id="input" name="input" type="search" placeholder="city" required hx-get="/"
+            hx-trigger="keyup changed delay:150ms" hx-vals='{"action":"search"}'>
+        <br>
+        <input id="radius" name="radius" type="number" value="50" min="5" max="10000">
+        <label for="radius">Radius (in km)</label>
+        <br>
+        <input id="population" name="population" type="number" value="10000" min="500" max="500000" step="100">
+        <label for="population">Population</label>
+    </form>
+    <script>
+        document.getElementById("radius").addEventListener("change", submitform);
+        document.getElementById("population").addEventListener("change", submitform);
+    </script>
+
+    <div id="map"></div>
+    <div id="script">
+        <script>
+            var map = L.map('map').fitWorld();
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+            var featureGroup = L.featureGroup().addTo(map);
+        </script>
+        {{ with .Query }}
+        {{ template "partials/query.html" .}}
+        {{ end }}
+        {{ with .Search }}
+        {{ template "partials/search.html" .}}
+        {{ end }}
+    </div>
+</body>
+
+</html>

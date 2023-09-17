@@ -1,0 +1,12 @@
+{{ define "partials/cities.html" }}
+{{ range . }}
+addmarker({
+    id: {{ .ID }},
+    latitude: {{ .Lat }},
+    longitude: {{ .Lon }},
+    population: {{ .Population }}
+}, {
+    opacity: 0.7,
+});
+{{ end }}
+{{ end }}
